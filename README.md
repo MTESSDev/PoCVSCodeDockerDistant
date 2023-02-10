@@ -273,26 +273,26 @@ Ajoutez ensuite, dans votre fichier ssh config ceci:
 
 Cela changera automatiquement votre utilisateur lors de la connexion.
 
-## Installer dotnet core SDK framework
+### Installer dotnet core SDK framework
 
 Suivez les instructions d'installation du SDK framework dotnet core 6 à partir de la doc de Microsoft: https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu#2204
 
 Assurez-vous de suivre les infos de la version 22.04, et seulement l'instalation du SDK 'Install SDK'.
 
-## Installez docker 
+### Installez docker 
 
-Suivez les instructions d'installation de docker à partir des liens suivants: 
-
-- https://docs.docker.com/engine/install/ubuntu/
-- https://docs.docker.com/engine/install/linux-postinstall/
+Sur la VM linux: 
+```bash
+$ sudo snap install docker
+```
 
 Dans le poste local: 
 
-- Installez l'extension Docker;
+- Installez l'extension Docker dans VS code;
 
 Après l'installation, faites un reboot de votre machine virtuelle. 
 
-# Créez une nouvelle application dotnet dans une machine remote
+## Créez une nouvelle application dotnet dans une machine remote
 
 Pour créér la nouvelle application dotnet, suivez les étapes ci-dessous: 
 
@@ -300,15 +300,18 @@ Pour créér la nouvelle application dotnet, suivez les étapes ci-dessous:
 $ mkdir projects
 $ cd projects 
 $ dotnet new webapp -o poclinuxdotnet --no-https -f net6.0
-# Pour l'execution de l'application dans la machine distante
-dotnet watch 
 
-# Attendre le redirect vers le navigateur. 
+# Pour l'execution de l'application dans la machine distante
+$ cd poclinuxdotnet
+$ dotnet watch 
+
+# Attendre le redirect vers le navigateur.
+# Ou cliquez sur le lien http:// dans le log 
 ```
 
-## Dockeriser l'application
+### Dockeriser l'application
 
-Faire le l'inclusion du fichier Dockerfile et .dockerignore dans le répertoire du projet. 
+Faire le l'inclusion du fichier Dockerfile et .dockerignore dans le répertoire du projet (voir Debug Docker: Add docker files to workspace plus bas).
 
 Ensuite faire le build de l'application: 
 
@@ -318,16 +321,16 @@ $ docker build -t poclinuxdotnet .
 
 L'image sera tagée comme poclinuxdotnet. Attendre le build finir l'application. 
 
-# Debug d'une application dans une machine remote 
+## Debug d'une application dans une machine remote 
 
-## Prérequis pour une session de débogage
+### Prérequis pour une session de débogage
 
 Dans le poste local: 
 
 - VSCode;
 - Extension C#;
 
-## Débogage 
+### Débogage 
 
 Ouvrez la palette de commande (Ctrl+Shift+P) et saisissez `Docker: Add docker files to workspace.`. Suivez les instructions à l'écran. 
 
@@ -339,7 +342,20 @@ Mettez votre breakpoint ou li fait du sens pour vous.
 
 Commencez le debugging! (F5)
 
-# Troubleshoot 
+### GIT
+
+Conserver les credentials 
+
+```bash
+$ git config --global credential.helper store
+```
+
+Ajouter les infos 
+```bash
+$ git config --global user.name "user"
+$ git config --global user.email "email@entreprise.com"
+```
+## Troubleshoot 
 
 **I'm on Linux and get the error "connect EACCES /var/run/docker.sock"**
 
@@ -354,7 +370,7 @@ Par exemple, si l'on veut débloquer la porte 8080
 ```bash
 $ fuser 8080/tcp -k
 ```
-# Références
+## Références
 
 **Installation**
 
