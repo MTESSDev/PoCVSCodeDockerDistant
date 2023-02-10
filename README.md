@@ -9,8 +9,11 @@
 </div>
 <!-- FIN ENTETE -->
 
+# PoC .Net sur Linux remote
 
-# PoC .Net sur Linux remote 
+## Machine Linux hébergée dans Azure
+
+### Préparation de la machine
 
 Étapes pour créer une machine virtuelle Linux sur Azure et se connecter à la machine pour le développement .Net 
 
@@ -20,7 +23,7 @@ Dans Azure services, créer une nouvelle ressource "Virtual Machine", puis cliqu
 
 La page `Create a virtual machine` est présentée. Elle est composée par plusieurs onglets, qui doivent être répondus pour la collection de toutes les informations utilisées pour la création de la VM. 
 
-## Onglet `Basics`
+#### Onglet `Basics`
 
 Dans le premier onglet, `Basics`, il faut répondre aux champs suivants: 
 
@@ -50,7 +53,7 @@ Inbound port rules
 
 Cliquez le bouton `"Next: Disks"`
 
-## Onglet `Disks`
+#### Onglet `Disks`
 
 Disk options 
 - OS disk size: `Default size (30 GiB)`
@@ -69,7 +72,7 @@ Data disks for CQEN-Linux-VM
 
 Cliquez le bouton `"Next: Networking"`
 
-## Onglet `Networking`
+#### Onglet `Networking`
 
 Network interface
 - Virtual network: `(new) CQEN-RG-vnet`
@@ -85,7 +88,7 @@ Load balancing
 
 Cliquez le bouton `"Next: Management"`
 
-## Onglet `Management` 
+#### Onglet `Management` 
 
 Monitoring
 - Boot diagnostics: `Enable with managed storage account (recommended)`
@@ -98,20 +101,20 @@ Guest OS updates
 
 Cliquez le bouton `"Next: Advanced"`
 
-## Onglet `Advanced`
+#### Onglet `Advanced`
 
 On ne va pas configurer des options dans cet onglet. 
 
 Cliquez le bouton `"Next: Tags"`
 
-## Onglet `Tags`
+#### Onglet `Tags`
 
 - Name: `Serveur Linux`
 - Value: `Develop`
 
 Cliquez le bouton `"Next: Review + Create"`
 
-## Onglet  `Review + Create`
+#### Onglet  `Review + Create`
 
 À cet onglet, Azure va procéder à des validations des options choisies dans les onglets précédants, et si le tout est correct, il vous montrera le message `Validation passed`. En plus, il affichera toutes les configurations faites, les détails du produit que vous déployez, bien comme le cout et les termes de service. 
 
@@ -121,7 +124,10 @@ Vous verez un écran appellé `Generate new key pair`, qui vous demande de faire
 
 Après quelques minutes, vous recevez le message `Your deployment is complete`, ce que nous confirme que la création est réussie. Cliquez sur le bouton `Go to resource` pour voir les ressources créés. 
 
-# Connecter à la machine
+### Connecter à la machine
+
+#### Option 1 : Machine publique
+
 
 Dans la page de votre VM, prenez note de l'adresse IP publique de votre machine (Public IP address). Assurez-vous aussi que votre machine soit démarrée. 
 
@@ -129,8 +135,13 @@ Dans la page de votre VM, prenez note de l'adresse IP publique de votre machine 
 
 Vous allez vous connecter à cette machine via une connection SSH. Dans votre machine locale, ouvrez votre VSCode. 
 
-### Installation de l'extension 
+#### Option 2 : Machine privée
 
+La machine pourrait être accessible en privé par VPN seulement. À ce moment, il faut démarrer le VPN avant de continuer.
+
+### Installation d'extensions
+
+#### Installation `Remote Development`
 Dans la barre d'outils à gauche du VSCode, cliquez sur l'icône des Extensions; ensuite, dans la boîte de recherche, cherchez le terme `Remote Development`, l'extension se présentera dans la liste à gauche. Cliquez sur installer et attendez la fin de l'installation. 
 
 <img src="./images/VSCodeExtension.png" />
@@ -139,28 +150,45 @@ Une fois finie, on va se connecter à la machine virtuelle accessible via l'adre
 
 D'abord, vérifiez si vous possedez le répertoire de configuration du SSH dans votre profil d'usager. Il est important parce que c'est l'endroit à enregistrer vos clés d'accès à la machine virutelle.  
 
-```bash 
-$ ls ~/.ssh 
-```
+>##### Pour linux/mac
+>
+>```bash 
+>$ ls ~/.ssh 
+>```
+
+>##### Pour windows
+>
+>```bash 
+>dir %USERPROFILE%\.ssh
+>```
 
 Si cette commande répond que le répertoire n'est pas trouvable, il faut le créer avec la commande ci-dessous: 
 
-```bash 
-$ mkdir ~/.ssh
-```
+>##### Pour linux/mac
+>```bash 
+>$ mkdir ~/.ssh
+>```
 
-Ensuite, faites la copie du fichier que vous avez téléchargé dans ce répertoire nouvellement créé. Dans mon cas, le fichier s'appele `CQEN-Linux-VM_key.pem` et il a été téléchargé originalement dans le repertoire `~/Downloads`: 
+>##### Pour windows
+>```bash 
+>mkdir %USERPROFILE%\.ssh
+>```
+Ensuite, faites la copie du fichier que vous avez téléchargé dans ce répertoire nouvellement créé. Dans mon cas, le fichier s'appelle `CQEN-Linux-VM_key.pem` et il a été téléchargé originalement dans le repertoire `~/Downloads`: 
 
-```bash
-$ mv ~/Downloads/CQEN-Linux-VM_key.pem ~/.ssh/.
-$ chmod 400 ~/.ssh/CQEN-Linux-VM_key.pem
-```
+>##### Pour linux/mac
+>```bash
+>$ mv ~/Downloads/CQEN-Linux-VM_key.pem ~/.ssh/.
+>$ chmod 400 ~/.ssh/CQEN-Linux-VM_key.pem
+>```
+>##### Pour Windows
+> Déplacez le certificat `.pem` dans le répertoire `%USERPROFILE%\.ssh`
+>
 
-Maintenant, dans VSCode, faites `Ctrl+Shift+P` pour ouvrir le menu de selection d'options, puis saisissez `Remote-SSH:` ; vous allez voir l'option `Add a New SSH Host`. Cliquez sur l'option. 
+Maintenant, dans VSCode, faites `Ctrl + Shift + P` ou <kbd>F1</kbd> pour ouvrir le menu de selection d'options, puis saisissez `Remote-SSH:` ; vous allez voir l'option `Add a New SSH Host`. Cliquez sur l'option. 
 
 <img src="./images/VSCodeOptionMenu.png" />
 
-Ensuite, dans le dialog qui suit `Enter SSH connection command`, saississez la commande qui suit, en substituant le nom d'usager, l'IP publique et le path vers la cl'publique avec les valeurs que vous avez configurés: 
+Ensuite, dans le dialog qui suit `Enter SSH connection command`, saississez la commande qui suit, en substituant le nom d'usager `"cqen"`, l'IP publique ou le nom d'hôte `"22.196.64.15"` et le path vers la clée publique `"~/.ssh/CQEN-Linux-VM_key.pem"` avec les valeurs que vous avez configurés: 
 
 <img src="./images/SSHCommande.png" />
 
@@ -172,13 +200,26 @@ Dans le dialogue de plateforme, choississez `Linux`:
 
 <img src="./images/SSHPlateforme.png" />
 
-Dans le dialog `Select SSH configuration file to update`, saississez l'adresse suivante: 
+Dans le dialog `Select SSH configuration file to update`, choisissez le fichier propre à votre utilisateur (dans ce cas-ci le premier)
 
-<img src="./images/SSHPKpath.png" />
+<img src="./images/SSHConnectChoixConfig.png" />
 
-```bash
-~/.ssh/config
-```
+Ou si désirez, tapez l'adresse manuellement
+
+>##### Pour linux/mac
+>```bash
+>~/.ssh/config
+>```
+
+>##### Note au sujet de windows
+> Validez le fichier config nouvellement mis à jour (dans notre exemple `C:\Users\cotda05\.ssh\config`)
+> Actuellement l'adresse du fichier `.pem` est généralement invalide dans celui-ci, assurez vous que le répertoire est bon et que la configuration ressemble à :
+>```ssh-config
+>Host docker        #Nom local
+>  HostName docker   #Non d'hôte ou IP
+>  IdentityFile C:\Users\cotda05\.ssh\docker_key.pem #Fichier PEM
+>  User cqen    #Utilisateur de la machine linux
+>```
 
 Et c'est fait, votre configuration de connection est créé. 
 
@@ -203,7 +244,9 @@ Prérequis
 - Installer .netCore SDK;
 - Installer docker 
 
-## Configurer nouveau usager 
+### Configurer nouvel usager 
+
+Attention cette étape nécessite de toujours faire un `su labuser` par la suite à moins de configurer le remote command.
 
 Il faut configurer un nouveau usager, qui n'a pas le profil du root, et qui soit dans le groupe de sudoers, pour des accès réhaussés. Par exemple, si l'on créé ce nouveau usager appellé  `labuser` 
 
@@ -211,6 +254,24 @@ Il faut configurer un nouveau usager, qui n'a pas le profil du root, et qui soit
 $ adduser labuser 
 $ adduser labuser sudo
 ```
+
+#### Remote command
+
+Dans le fichier `settings.json` de VS Code, assurez-vous de ne pas avoir la config `remote.SSH.remotePlatform` présente et ajoutez la config 
+
+```json
+    "remote.SSH.enableRemoteCommand": true,
+    "remote.SSH.useLocalServer": true
+```
+
+Ajoutez ensuite, dans votre fichier ssh config ceci:
+
+```ssh-config
+  RequestTTY yes
+  RemoteCommand sudo su - labuser
+```
+
+Cela changera automatiquement votre utilisateur lors de la connexion.
 
 ## Installer dotnet core SDK framework
 
